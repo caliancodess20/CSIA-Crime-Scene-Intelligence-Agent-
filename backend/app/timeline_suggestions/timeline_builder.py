@@ -14,24 +14,22 @@ def build_timeline(events):
 
         if timestamp:
             try:
-                event_copy["_parsed_timestamp"] = datetime.strptime(
+                parsed_timestamp = datetime.strptime(
                     timestamp,
                     "%Y-%m-%d %H:%M"
                 )
             except ValueError:
-                event_copy["_parsed_timestamp"] = None
+                parsed_timestamp = None
         else:
-            event_copy["_parsed_timestamp"] = None
+            parsed_timestamp = None
 
-        timeline.append(event_copy)
+        timeline.append((event_copy, parsed_timestamp))
 
     timeline.sort(
-        key=lambda event: (
-            event["_parsed_timestamp"] is None,
-            event["_parsed_timestamp"]
-            if event["_parsed_timestamp"]
-            else datetime.max
+        key=lambda item: (
+            item[1] is None,
+            item[1] if item[1] else datetime.max
         )
     )
 
-    return timeline
+    return [event for event, _ in timeline]

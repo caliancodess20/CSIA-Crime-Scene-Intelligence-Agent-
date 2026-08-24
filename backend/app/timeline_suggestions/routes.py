@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
 
-from timeline_builder import build_timeline
-from next_step_rules import suggest_next_steps
-
+from .timeline_builder import build_timeline
+from .next_step_rules import suggest_next_steps
 
 timeline_bp = Blueprint(
     "timeline_suggestions",
