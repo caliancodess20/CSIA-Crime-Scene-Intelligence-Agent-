@@ -1033,7 +1033,7 @@ CSIA-Crime-Scene-Intelligence-Agent/
 | #  | Name                            | Registration No. | GitHub                                                               |
 | -- | ------------------------------- | ---------------- | -------------------------------------------------------------------- |
 | 01 | **SANSKRUTI PRASHANT CHANEKAR** | **25BAI10603**   | [@caliancodess20](https://github.com/caliancodess20)                 |
-| 02 | **YOJIT WAGH**                  | **25BAI10232**   | —                                                                    |
+| 02 | **YOJIT WAGH**                  | **25BAI10232**   | [@yashwagh1311-cmyk](https://github.com/yashwagh1311-cmyk)                                                                |
 | 03 | **ANWESHA DHOTE**               | **25BAI10996**   | [@anweshabuilds25](https://github.com/anweshabuilds25)               |
 | 04 | **SAUMYA SINHA**                | **25BAI11388**   | [@saumya25bai11388-sys](https://github.com/saumya25bai11388-sys)     |
 | 05 | **ANMOL PANJWANI**              | **25BAI10354**   | [@Anmol25bai10354](https://github.com/Anmol25bai10354)               |
