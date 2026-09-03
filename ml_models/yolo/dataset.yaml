@@ -1,0 +1,6 @@
+﻿path: ../ml_models/yolo/data
+train: images/train
+val: images/val
+names:
+  0: knife
+  1: backpack
