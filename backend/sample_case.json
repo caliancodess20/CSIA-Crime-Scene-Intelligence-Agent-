@@ -1,0 +1,65 @@
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "case_number": "CSIA-2026-00001",
+  "title": "Robbery at Shivani General Store",
+  "description": "Break-in reported at approx 22:40. Cash register forced open, CCTV covers front entrance only.",
+  "crime_type": "robbery",
+  "status": "under_investigation",
+  "priority": "high",
+  "location": "Shivani General Store, MG Road, Ashta",
+  "assigned_investigator": "Insp. R. Sharma",
+  "tags": ["armed", "cctv-available", "night-incident"],
+  "created_at": "2026-08-24T10:00:00Z",
+  "updated_at": "2026-08-24T16:12:00Z",
+  "closed_at": null,
+  "evidence_items": [
+    {
+      "id": "9c4e2b10-8a1e-4f3b-9d2a-1e2f3a4b5c6d",
+      "case_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "evidence_type": "image",
+      "description": "Photo of forced cash register",
+      "source": "Investigator phone camera",
+      "file_url": "https://storage.csia.local/evidence/register_forced.jpg",
+      "collected_by": "Const. P. Verma",
+      "collected_at": "2026-08-24T11:00:00Z",
+      "extra_metadata": {
+        "yolo_detections": ["crowbar", "cash_register"]
+      },
+      "chain_of_custody": [
+        {
+          "action": "collected",
+          "by": "Const. P. Verma",
+          "timestamp": "2026-08-24T11:00:00Z"
+        }
+      ],
+      "created_at": "2026-08-24T11:00:00Z",
+      "updated_at": null
+    },
+    {
+      "id": "7b3d1a20-6c2f-4e5a-8b1d-2f3e4a5b6c7d",
+      "case_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "evidence_type": "witness_statement",
+      "description": "Shopkeeper statement: heard noise around 22:40, saw two men flee towards the bus stand.",
+      "source": "Shopkeeper - Ramesh Patel",
+      "file_url": null,
+      "collected_by": "Insp. R. Sharma",
+      "collected_at": "2026-08-24T14:00:00Z",
+      "extra_metadata": {
+        "nlp_entities": {
+          "names": ["Ramesh Patel"],
+          "locations": ["bus stand"],
+          "time_mentions": ["22:40"]
+        }
+      },
+      "chain_of_custody": [
+        {
+          "action": "collected",
+          "by": "Insp. R. Sharma",
+          "timestamp": "2026-08-24T14:00:00Z"
+        }
+      ],
+      "created_at": "2026-08-24T14:00:00Z",
+      "updated_at": null
+    }
+  ]
+}
