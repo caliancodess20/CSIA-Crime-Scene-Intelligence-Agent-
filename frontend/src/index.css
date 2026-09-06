@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-ink-950 text-text-primary font-body antialiased;
+}
+
+::selection {
+  background-color: #E8A33D;
+  color: #0B0E15;
+}
+
+/* visible keyboard focus, kept subtle but present everywhere */
+:focus-visible {
+  outline: 2px solid #E8A33D;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
