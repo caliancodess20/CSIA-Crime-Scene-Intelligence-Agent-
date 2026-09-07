@@ -1,36 +1,77 @@
-from flask import Blueprint, request, jsonify
+# backend/app/timeline_suggestions/routes.py
 
-from .timeline_builder import build_timeline
-from .next_step_rules import suggest_next_steps
+from fastapi import (
+    APIRouter,
+    HTTPException,
+)
 
-timeline_bp = Blueprint(
-    "timeline_suggestions",
-    __name__,
-    url_prefix="/timeline"
+from .timeline_builder import (
+    build_timeline,
+)
+
+from app.integration.orchestrator import (
+    process_case,
 )
 
 
-@timeline_bp.route("/suggestions", methods=["POST"])
-def timeline_suggestions():
-    data = request.get_json()
+router = APIRouter(
+    prefix="/timeline",
+    tags=["Timeline & Suggestions"],
+)
 
-    if not data:
-        return jsonify({
-            "error": "Request body is required"
-        }), 400
 
-    events = data.get("events", [])
+@router.get(
+    "/case/{case_id}",
+)
+async def get_case_timeline(
+    case_id: str,
+):
+    """
+    Generate the complete timeline and next-step
+    suggestions for a Case Management case.
+    """
 
-    if not isinstance(events, list):
-        return jsonify({
-            "error": "events must be a list"
-        }), 400
+    if not case_id:
+        raise HTTPException(
+            status_code=400,
+            detail="case_id is required.",
+        )
 
-    timeline = build_timeline(events)
+    try:
 
-    suggestions = suggest_next_steps(timeline)
+        result = await process_case(
+            case_id
+        )
 
-    return jsonify({
-        "timeline": timeline,
-        "next_steps": suggestions
-    })
+        return result
+
+    except ValueError as exc:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
+
+    except LookupError as exc:
+
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        )
+
+    except RuntimeError as exc:
+
+        raise HTTPException(
+            status_code=502,
+            detail=str(exc),
+        )
+
+    except Exception as exc:
+
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Unable to process case: "
+                + str(exc)
+            ),
+        )
