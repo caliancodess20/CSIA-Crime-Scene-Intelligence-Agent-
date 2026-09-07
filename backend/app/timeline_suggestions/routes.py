@@ -28,9 +28,4 @@ def timeline_suggestions():
 
     timeline = build_timeline(events)
 
-    suggestions = suggest_next_steps(timeline)
-
-    return jsonify({
-        "timeline": timeline,
-        "next_steps": suggestions
-    })
+    suggestions = suggest_next_steps(timelin
