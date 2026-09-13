@@ -1,232 +1,97 @@
 # backend/app/timeline_suggestions/timeline_builder.py
 
-from typing import Any
+"""
+Orders case events chronologically.
 
-from app.shared.utils import (
-    parse_timestamp,
-    sort_by_timestamp,
-    format_timestamp,
-)
-from app.shared.exceptions import (
-    TimelineBuildError,
-    InsufficientDataError,
-)
+Field names below are confirmed against the REAL schema, not guessed:
+  - backend/app/case_management/models.py  (Evidence.collected_at, Evidence.extra_metadata)
+  - backend/sample_case.json               (actual stored evidence shape)
+
+Real evidence record shape (as returned by SQLAlchemy / stored in DB):
+
+    {
+        "id": "9c4e2b10-...",
+        "case_id": "3fa85f64-...",
+        "evidence_type": "image",              # Enum: image/video/document/
+                                                #       witness_statement/cctv_frame/
+                                                #       physical/other
+        "description": "Photo of forced cash register",
+        "source": "Investigator phone camera",
+        "file_url": "https://...",
+        "collected_by": "Const. P. Verma",
+        "collected_at": "2026-08-24T11:00:00Z",  # <-- the real timestamp field
+        "extra_metadata": {
+            "yolo_detections": ["crowbar", "cash_register"],   # Anwesha's output, flattened
+            "nlp_entities": {"names": [...], "locations": [...], "time_mentions": [...]}  # Anmol's output
+        },
+        "chain_of_custody": [{"action": "collected", "by": "...", "timestamp": "..."}],
+        "created_at": "...",
+        "updated_at": null
+    }
+
+"""
+
+from app.shared.utils import parse_timestamp, sort_by_timestamp, format_timestamp
+from app.shared.exceptions import TimelineBuildError, InsufficientDataError
 
 
-def normalize_evidence(
-    evidence: dict[str, Any],
-) -> dict[str, Any]:
+def _evidence_to_dict(evidence) -> dict:
     """
-    Convert Case Management evidence into the internal
-    structure expected by the Timeline/Suggestion modules.
-
-    Case Management:
-        collected_at
-        extra_metadata.image_analysis
-
-    Timeline:
-        timestamp
-        analysis
+    Normalizes a SQLAlchemy Evidence ORM object (or a plain dict, e.g. in
+    tests) into a plain dict so the rest of this module doesn't care which
+    one it received.
     """
+    if isinstance(evidence, dict):
+        return evidence
 
-    if not isinstance(evidence, dict):
-        raise TimelineBuildError(
-            "Evidence must be a dictionary."
-        )
-
-    extra_metadata = (
-        evidence.get("extra_metadata") or {}
-    )
-
-    if not isinstance(extra_metadata, dict):
-        extra_metadata = {}
-
-    image_analysis = (
-        extra_metadata.get("image_analysis") or {}
-    )
-
-    if not isinstance(image_analysis, dict):
-        image_analysis = {}
-
-    normalized = dict(evidence)
-
-    # Case Management → Timeline
-    normalized["timestamp"] = (
-        evidence.get("collected_at")
-        or evidence.get("created_at")
-    )
-
-    # Case Management → Image Analysis
-    normalized["analysis"] = image_analysis
-
-    return normalized
+    return {
+        "id": str(evidence.id),
+        "case_id": str(evidence.case_id),
+        "evidence_type": evidence.evidence_type.value if hasattr(evidence.evidence_type, "value") else evidence.evidence_type,
+        "description": evidence.description,
+        "source": evidence.source,
+        "collected_by": evidence.collected_by,
+        "collected_at": evidence.collected_at.isoformat() if evidence.collected_at else None,
+        "extra_metadata": evidence.extra_metadata or {},
+    }
 
 
-def normalize_evidence_list(
-    evidence_list: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    """Normalize all Case Management evidence."""
-
-    return [
-        normalize_evidence(evidence)
-        for evidence in evidence_list
-    ]
-
-
-def build_timeline(
-    evidence_list: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
+def build_timeline(evidence_list: list) -> list[dict]:
     """
-    Build chronological timeline from Case Management evidence.
-    """
+    Takes a list of evidence (ORM objects OR plain dicts — e.g. Case.evidence_items
+    straight from case_management) and returns them ordered chronologically.
 
+    Evidence with a missing/unparseable collected_at is placed at the end
+    rather than raising, since real evidence often has missing timestamps
+    (explicitly one of the required "messy case" test scenarios).
+    """
     if not evidence_list:
-        raise InsufficientDataError(
-            "No evidence available to build a timeline."
-        )
+        raise InsufficientDataError("No evidence available to build a timeline.")
 
-    normalized = normalize_evidence_list(
-        evidence_list
-    )
-
-    try:
-        ordered = sort_by_timestamp(
-            normalized,
-            key="timestamp",
-        )
-
-    except Exception as exc:
-        raise TimelineBuildError(
-            f"Unable to sort evidence: {exc}"
-        ) from exc
+    normalized = [_evidence_to_dict(e) for e in evidence_list]
+    ordered = sort_by_timestamp(normalized, key="collected_at")
 
     timeline = []
-
     for item in ordered:
+        ts = parse_timestamp(item.get("collected_at") or "")
 
-        timestamp = item.get("timestamp")
+        metadata = item.get("extra_metadata", {}) or {}
+        detected_objects = metadata.get("yolo_detections", [])
+        nlp_entities = metadata.get("nlp_entities", {})
 
-        try:
-            parsed_timestamp = parse_timestamp(
-                str(timestamp or "")
-            )
-        except Exception:
-            parsed_timestamp = None
+        description = item.get("description")
+        if not description and detected_objects:
+            description = f"Detected: {', '.join(detected_objects)}"
+        elif not description and nlp_entities.get("names"):
+            description = f"Statement mentions: {', '.join(nlp_entities['names'])}"
+        elif not description:
+            description = "Unknown event"
 
-        # --------------------------------------------
-        # Image Analysis
-        # --------------------------------------------
-
-        analysis = item.get(
-            "analysis"
-        ) or {}
-
-        if not isinstance(analysis, dict):
-            analysis = {}
-
-        payload = analysis.get(
-            "payload"
-        ) or {}
-
-        if not isinstance(payload, dict):
-            payload = {}
-
-        detected_objects = payload.get(
-            "detected_objects"
-        ) or []
-
-        if not isinstance(
-            detected_objects,
-            list,
-        ):
-            detected_objects = []
-
-        object_names = []
-
-        for obj in detected_objects:
-
-            if not isinstance(obj, dict):
-                continue
-
-            class_name = obj.get(
-                "class_name"
-            )
-
-            if class_name:
-                object_names.append(
-                    str(class_name)
-                )
-
-        # --------------------------------------------
-        # Description
-        # --------------------------------------------
-
-        description = item.get(
-            "description"
-        )
-
-        if description:
-
-            description = str(
-                description
-            )
-
-        elif object_names:
-
-            description = (
-                "Detected: "
-                + ", ".join(object_names)
-            )
-
-        else:
-
-            evidence_type = item.get(
-                "evidence_type",
-                "evidence",
-            )
-
-            description = (
-                f"{str(evidence_type).replace('_', ' ').title()} "
-                "added to the case"
-            )
-
-        # --------------------------------------------
-        # Timeline event
-        # --------------------------------------------
-
-        timeline.append(
-            {
-                "event": description,
-
-                "timestamp": (
-                    format_timestamp(
-                        parsed_timestamp
-                    )
-                    if parsed_timestamp
-                    else "Unknown time"
-                ),
-
-                "evidence_id": item.get(
-                    "id"
-                ),
-
-                "evidence_type": item.get(
-                    "evidence_type",
-                    "unknown",
-                ),
-
-                "case_id": item.get(
-                    "case_id"
-                ),
-
-                "source": item.get(
-                    "source"
-                ),
-
-                "file_url": item.get(
-                    "file_url"
-                ),
-            }
-        )
+        timeline.append({
+            "event": description,
+            "timestamp": format_timestamp(ts) if ts else "Unknown time",
+            "evidence_id": item.get("id"),
+            "evidence_type": item.get("evidence_type", "unknown"),
+        })
 
     return timeline
