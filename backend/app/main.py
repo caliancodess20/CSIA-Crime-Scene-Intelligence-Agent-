@@ -20,7 +20,7 @@ app = FastAPI(
     description="Crime Scene Intelligence Assistant — Case Management & Search",
     version="0.1.0",
 )
-
+from .image_analysis.routes import router as image_analysis_router 
 register_exception_handlers(app)
 
 app.include_router(case_management_router)
@@ -30,7 +30,11 @@ app.include_router(
     prefix="/api/v1/nlp",
     tags=["nlp"]
 )
-
+app.include_router(
+    image_analysis_router,
+    prefix="/api/v1/image-analysis",
+    tags=["Image Analysis"]
+)
 
 @app.get("/api/v1/health")
 def health_check():
