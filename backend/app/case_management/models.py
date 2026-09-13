@@ -16,7 +16,7 @@ from sqlalchemy import (
     Enum,
     JSON,
 )
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -59,7 +59,7 @@ class Case(Base):
     priority = Column(Enum(CasePriority), default=CasePriority.medium, index=True)
     location = Column(String(255), nullable=True)
     assigned_investigator = Column(String(150), nullable=True, index=True)
-    tags = Column(ARRAY(String), default=list)
+    tags = Column(JSON, default=list)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
