@@ -13,9 +13,8 @@ from fastapi import FastAPI
 from .case_management.database import Base, engine
 from .case_management.routes import router as case_management_router
 from .timeline_suggestions.routes import router as timeline_router
+from .nlp_engine.routes import router as nlp_router
 from .shared.exceptions import register_exception_handlers
-
-
 app = FastAPI(
     title="CSIA API",
     description="Crime Scene Intelligence Assistant — Case Management & Search",
@@ -26,6 +25,11 @@ register_exception_handlers(app)
 
 app.include_router(case_management_router)
 app.include_router(timeline_router)
+app.include_router(
+    nlp_router,
+    prefix="/api/v1/nlp",
+    tags=["nlp"]
+)
 
 
 @app.get("/api/v1/health")
