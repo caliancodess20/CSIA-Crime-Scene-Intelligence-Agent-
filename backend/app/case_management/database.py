@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://csia_user:csia_password@localhost:5432/csia_db",
+    "sqlite:///./csia.db",
 )
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
