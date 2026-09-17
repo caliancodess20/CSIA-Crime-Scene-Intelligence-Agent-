@@ -80,34 +80,83 @@ separate standalone service.
 - **Training data:** needs labeled examples the team may not legally have access to for real forensic imagery
 
 ## Project Structure
+## 📁 Project Structure
 
 ```text
 CSIA-Crime-Scene-Intelligence-Agent/
 │
 ├── backend/
-│   ├── run.py
 │   │
-│   └── app/
-│       ├── __init__.py
-│       ├── main.py
-│       │
-│       ├── timeline_suggestions/
-│       │   ├── __init__.py
-│       │   ├── routes.py
-│       │   ├── timeline_builder.py
-│       │   ├── next_step_rules.py
-│       │   ├── test_timeline.py
-│       │   ├── test_next_steps.py
-│       │   └── test_full_flow.py
-│       │
-│       └── shared/
+│   ├── app/
+│   │   ├── case_management/
+│   │   │   ├── API_REFERENCE.md
+│   │   │   ├── __init__.py
+│   │   │   ├── crud.py
+│   │   │   ├── database.py
+│   │   │   ├── models.py
+│   │   │   ├── requirements.txt
+│   │   │   ├── routes.py
+│   │   │   ├── sample_case.json
+│   │   │   └── schemas.py
+│   │   │
+│   │   ├── image_analysis/
+│   │   │   ├── ocr_reader.py
+│   │   │   ├── routes.py
+│   │   │   └── yolo_detector.py
+│   │   │
+│   │   ├── nlp_engine/
+│   │   │   ├── __init__.py
+│   │   │   ├── entity_extraction.py
+│   │   │   └── routes.py
+│   │   │
+│   │   ├── shared/
+│   │   │   ├── auth.py
+│   │   │   ├── exceptions.py
+│   │   │   └── utils.py
+│   │   │
+│   │   ├── timeline_suggestions/
+│   │   │   ├── next_step_rules.py
+│   │   │   ├── routes.py
+│   │   │   ├── test_full_flow.py
+│   │   │   ├── test_next_steps.py
+│   │   │   ├── test_timeline.py
+│   │   │   └── timeline_builder.py
+│   │   │
+│   │   ├── __init__.py
+│   │   └── main.py
+│   │
+│   ├── API_REFERENCE.md
+│   ├── requirements.txt
+│   ├── run.py
+│   └── sample_case.json
 │
-├── README.md
-├── requirements.txt
-└── .gitignore
-
-## Setup & Running
-
+├── frontend/
+│   ├── src/
+│   │   ├── index.css
+│   │   └── main.jsx
+│   │
+│   ├── README.md
+│   ├── index.html
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   └── vite.config.js
+│
+├── ml_models/
+│   └── yolo/
+│
+├── evidence_analysis.py
+├── evidence_pipeline.py
+├── format_spec.py
+├── main.py
+├── report_builder.py
+├── routes.py
+├── storage.py
+│
+├── .gitignore
+├── LICENSE
+└── README.md
+Setup And Running
 ### Prerequisites
 - Python 3.10+
 - Docker (for Postgres)
