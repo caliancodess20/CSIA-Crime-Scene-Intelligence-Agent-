@@ -80,7 +80,6 @@ separate standalone service.
 - **Training data:** needs labeled examples the team may not legally have access to for real forensic imagery
 
 ## Project Structure
-## 📁 Project Structure
 
 ```text
 CSIA-Crime-Scene-Intelligence-Agent/
@@ -156,13 +155,14 @@ CSIA-Crime-Scene-Intelligence-Agent/
 ├── .gitignore
 ├── LICENSE
 └── README.md
-Setup And Running
+```
+
+## Setup And Running
 ### Prerequisites
 - Python 3.10+
 - Docker (for Postgres)
 
 ### 1. Start Postgres
-
 ```bash
 docker run --name csia-db \
   -e POSTGRES_USER=csia_user \
