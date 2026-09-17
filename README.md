@@ -80,22 +80,31 @@ separate standalone service.
 - **Training data:** needs labeled examples the team may not legally have access to for real forensic imagery
 
 ## Project Structure
-csia/
-├── backend/
-│ ├── app/
-│ │ ├── main.py # single FastAPI entrypoint — wires every router
-│ │ ├── case_management/ — core schema, CRUD, search
-│ │ ├── image_analysis/  — YOLOv8 + EasyOCR
-│ │ ├── nlp_engine/  — statement summarization, relationship graph
-│ │ ├── evidence_upload/  — upload endpoint, file storage
-│ │ ├── report_generator/  — PDF case reports
-│ │ ├── timeline_suggestions/  — timeline + next-step rules
-│ │ └── shared/ — auth, exceptions, utils used by every module
-│ └── tests/
-│ └── test_timeline_suggestions.py
-├── frontend/ 
-└── README.md
 
+```text
+CSIA-Crime-Scene-Intelligence-Agent/
+│
+├── backend/
+│   ├── run.py
+│   │
+│   └── app/
+│       ├── __init__.py
+│       ├── main.py
+│       │
+│       ├── timeline_suggestions/
+│       │   ├── __init__.py
+│       │   ├── routes.py
+│       │   ├── timeline_builder.py
+│       │   ├── next_step_rules.py
+│       │   ├── test_timeline.py
+│       │   ├── test_next_steps.py
+│       │   └── test_full_flow.py
+│       │
+│       └── shared/
+│
+├── README.md
+├── requirements.txt
+└── .gitignore
 
 ## Setup & Running
 
